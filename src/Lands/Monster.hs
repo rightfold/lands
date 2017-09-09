@@ -9,9 +9,9 @@ module Lands.Monster
   ) where
 
 import Control.Monad.Random.Class (MonadRandom)
-import Data.ByteString.Builder (Builder)
 import Lands.Chance (Dice, roll)
 import Lands.Item (Item)
+import Lands.Render (Render)
 
 -- | How does a monster behave?
 data MonsterSpecies a = MonsterSpecies
@@ -21,7 +21,7 @@ data MonsterSpecies a = MonsterSpecies
   , msHealth  :: a -> Word      -- ^ Health of this monster.
   , msDrops   :: Word -> a -> [Item]
                                 -- ^ Items dropped given a dice roll.
-  , msRender  :: a -> Builder   -- ^ Render this monster.
+  , msRender  :: a -> [Render]  -- ^ Render this monster.
   }
 
 -- | An instance of a 'MonsterSpecies', with some state.
@@ -37,7 +37,7 @@ updateMonster :: MonadRandom m => Monster -> m Monster
 updateMonster (Monster ms m) = Monster ms . flip (msUpdate ms) m <$> roll (msChance ms)
 
 -- | Render an existing monster.
-renderMonster :: Monster -> Builder
+renderMonster :: Monster -> [Render]
 renderMonster (Monster ms m) = msRender ms m
 
 -- | Items this monster would drop upon death.
